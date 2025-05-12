@@ -129,12 +129,6 @@ npm run dev
 
 ---
 
-## 📄 License
-
-This project is licensed under the MIT License.
-
----
-
 ### 🛠 NumPy 버전 호환 이슈 해결
 
 TensorFlow 2.11은 NumPy 1.x 기반으로 컴파일되어 있으므로, 최신 NumPy 2.x 버전과 충돌이 발생할 수 있습니다.
@@ -146,3 +140,10 @@ pip install numpy==1.24.3 --force-reinstall
 ```
 
 > 이 설정은 DeepFace + TensorFlow + Keras 조합에서 안정적으로 동작합니다.
+
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+---
