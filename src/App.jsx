@@ -49,12 +49,27 @@ const App = () => {
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         display: 'flex',
-        justifyContent: 'center',
+        flexDirection: 'column', // 세로 방향으로 변경
         alignItems: 'center',
-        padding: '20px',
+        justifyContent: 'flex-start', // 상단 정렬
+        paddingTop: result ? '40px' : '120px', // 조건부 패딩
+        paddingLeft: '20px',
+        paddingRight: '20px',
+        paddingBottom: '20px',
         boxSizing: 'border-box',
       }}
     >
+      {!result && (
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+          <Title level={1} style={{ fontFamily: 'Arial Black', color: '#fff', textShadow: '1px 1px 4px rgba(0,0,0,0.6)' }}>
+            MatchMyChampion
+          </Title>
+          <Text type="secondary" style={{ fontSize: '18px', color: '#eee' }}>
+            Who Is Your Champ?
+          </Text>
+        </div>
+      )}
+
       <div
         style={{
           maxWidth: '800px',
