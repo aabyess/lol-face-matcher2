@@ -80,7 +80,7 @@ const App = () => {
           boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
         }}
       >
-        <Title level={2}>리그 챔피언 닮은꼴 찾기</Title>
+        <Title level={2}>LOL 챔피언 닮은꼴 찾기</Title>
 
         {!result ? (
           <Dragger {...uploadProps} className="upload-box">
