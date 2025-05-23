@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Upload, message, Card, Typography, Button } from 'antd';
 import { InboxOutlined, ReloadOutlined } from '@ant-design/icons';
@@ -8,6 +9,7 @@ const { Dragger } = Upload;
 const { Title, Text } = Typography;
 
 const App = () => {
+  const [genderLabel, setGenderLabel] = useState('알 수 없음');
   const [result, setResult] = useState(null);
 
   const uploadProps = {
@@ -22,8 +24,13 @@ const App = () => {
         message.success(`${info.file.name} 업로드 성공!`);
 
         if (response) {
+          console.log('서버 응답:', response);
           if (response.top_matches) {
-            setResult(response);  // ✅ 여기서 top_matches 기준으로 저장
+            setResult(response);
+            const g = response.gender?.toLowerCase();
+            if (g === 'man') setGenderLabel('남자');
+            else if (g === 'woman') setGenderLabel('여자');
+            else setGenderLabel('알 수 없음');
           } else if (response.error) {
             message.warning('얼굴을 찾을 수 없습니다.');
             setResult(null);
@@ -49,38 +56,23 @@ const App = () => {
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         display: 'flex',
-        flexDirection: 'column', // 세로 방향으로 변경
+        justifyContent: 'center',
         alignItems: 'center',
-        justifyContent: 'flex-start', // 상단 정렬
-        paddingTop: result ? '40px' : '120px', // 조건부 패딩
-        paddingLeft: '20px',
-        paddingRight: '20px',
-        paddingBottom: '20px',
+        padding: '20px',
         boxSizing: 'border-box',
       }}
     >
-      {!result && (
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-          <Title level={1} style={{ fontFamily: 'Arial Black', color: '#fff', textShadow: '1px 1px 4px rgba(0,0,0,0.6)' }}>
-            MatchMyChampion
-          </Title>
-          <Text type="secondary" style={{ fontSize: '18px', color: '#eee' }}>
-            Who Is Your Champ?
-          </Text>
-        </div>
-      )}
-
       <div
         style={{
-          maxWidth: '800px',
+          width: '800px',
           textAlign: 'center',
           padding: '40px',
-          backgroundColor: 'rgba(255,255,255,0.9)',
-          borderRadius: '12px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+          backgroundColor: 'rgba(255,255,255,0.95)',
+          borderRadius: '8px',
+          boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
         }}
       >
-        <Title level={2}>LOL 챔피언 닮은꼴 찾기</Title>
+        <Title level={2}>리그 챔피언 닮은꼴 찾기</Title>
 
         {!result ? (
           <Dragger {...uploadProps} className="upload-box">
@@ -91,38 +83,44 @@ const App = () => {
             <p>JPG, PNG 등 이미지 파일만 업로드 가능합니다.</p>
           </Dragger>
         ) : (
-          <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', justifyContent: 'center' }}>
-            {result.top_matches.map((champ, index) => (
-              <Card
-                key={champ.name}
-                className="result-card"
-                title={`TOP ${index + 1}`}
-                style={{ width: 240 }}
-                cover={
-                  <img
-                    alt={champ.name}
-                    src={`/champions/${champ.name}`}
-                    className="champion-image"
-                  />
-                }
-              >
-                <Title level={4}>{champ.name.replace('.png', '')}</Title>
-                <Text className="match-confidence">
-                  매칭률: {(champ.score * 100).toFixed(2)}%
-                </Text>
-              </Card>
-            ))}
-            <div style={{ width: '100%', textAlign: 'center', marginTop: '20px' }}>
-              <Button
-                type="primary"
-                icon={<ReloadOutlined />}
-                className="reset-button"
-                onClick={resetResult}
-              >
-                다시 테스트 하기
-              </Button>
+          <>
+            <Text type="secondary" style={{ fontSize: '16px', display: 'block', marginBottom: '20px' }}>
+              감지된 성별: {genderLabel}
+            </Text>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                gap: '16px',
+                marginBottom: '20px',
+              }}
+            >
+              {result.top_matches.map((champ, index) => (
+                <Card
+                  key={champ.name}
+                  title={`TOP ${index + 1}`}
+                  style={{ width: '30%' }}
+                  cover={
+                    <img
+                      alt={champ.name}
+                      src={`/champions/${champ.name}`}
+                      style={{ objectFit: 'cover', height: '200px' }}
+                    />
+                  }
+                >
+                  <Title level={4} style={{ margin: 0 }}>{champ.name.replace('.png', '')}</Title>
+                  <Text>매칭률: {(champ.score * 100).toFixed(2)}%</Text>
+                </Card>
+              ))}
             </div>
-          </div>
+            <Button
+              type="primary"
+              icon={<ReloadOutlined />}
+              onClick={resetResult}
+            >
+              다시 테스트 하기
+            </Button>
+          </>
         )}
       </div>
     </div>

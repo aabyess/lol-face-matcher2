@@ -1,63 +1,113 @@
-# backend/main.py (DeepFace 버전)
-from fastapi import FastAPI, UploadFile, File
+
+from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from deepface import DeepFace
-import shutil
-import pickle
 import numpy as np
+import pickle
 import os
+import json
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# 경로 설정
 EMBEDDING_FILE = os.path.join("..", "test_deepface", "embeddings.pkl")
+GENDER_FILE = os.path.join("..", "test_deepface", "champion_gender.json")
+
+# 임베딩 로딩
 with open(EMBEDDING_FILE, "rb") as f:
     champion_data = pickle.load(f)
 
-def cosine_similarity(a, b):
-    a = np.array(a)
-    b = np.array(b)
-    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+# 성별 정보 로딩 (키를 소문자로 정규화)
+with open(GENDER_FILE, "r", encoding="utf-8") as f:
+    original_gender = json.load(f)
+    champion_gender = {k.lower(): v for k, v in original_gender.items()}
 
 @app.post("/upload")
 async def match_champion(file: UploadFile = File(...)):
-    temp_path = "temp.jpg"
-    with open(temp_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    contents = await file.read()
+    temp_path = "temp_image.jpg"
+
+    with open(temp_path, "wb") as f:
+        f.write(contents)
 
     try:
-        # 사용자 얼굴 임베딩
+        # 얼굴 임베딩
         test_embedding = DeepFace.represent(
             img_path=temp_path,
             model_name="ArcFace",
-            detector_backend="skip",
             enforce_detection=False
         )[0]["embedding"]
 
-        # 모든 챔피언과 유사도 계산
+        # 성별 분석 (형식 유동적이므로 안전하게 처리)
+        analysis = DeepFace.analyze(
+            img_path=temp_path,
+            actions=["gender"],
+            enforce_detection=False
+        )
+
+        print("🔥 DeepFace 분석 결과:", analysis)
+
+        try:
+            if isinstance(analysis, list):
+                gender_data = analysis[0].get("gender")
+            else:
+                gender_data = analysis.get("gender")
+
+            if isinstance(gender_data, dict):
+                user_gender = max(gender_data, key=gender_data.get)
+            elif isinstance(gender_data, str):
+                user_gender = gender_data
+            else:
+                print("⚠ gender 형식 이상 → fallback 적용")
+                user_gender = "man"  # fallback: 반드시 성별 할당
+        except Exception as e:
+            print("⚠ 분석 중 오류 발생 → fallback 적용:", str(e))
+            user_gender = "man"  # fallback: 오류 발생 시에도 기본값 지정
+
+        print("✅ 최종 user_gender:", user_gender)
+        user_gender = user_gender.lower()
+
+        def cosine_similarity(vec1, vec2):
+            vec1 = np.array(vec1)
+            vec2 = np.array(vec2)
+            return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
+
         similarities = []
         for champ in champion_data:
+            champ_name = champ["identity"]
+            champ_key = champ_name.lower()
             score = cosine_similarity(test_embedding, champ["embedding"])
+
+            champ_gender = champion_gender.get(champ_key, "unknown")
+            if isinstance(champ_gender, str) and champ_gender.lower() == user_gender:
+                score *= 1.05
+            else:
+                score *= 0.95
+
             similarities.append({
-                "name": champ["identity"],
+                "name": champ_name,
                 "score": round(float(score), 4)
             })
 
-        # Top 3 챔피언 추출 (높은 점수 순)
-        top3 = sorted(similarities, key=lambda x: x["score"], reverse=True)[:3]
-
-        os.remove(temp_path)
+        top_matches = sorted(similarities, key=lambda x: x["score"], reverse=True)[:3]
 
         return {
-            "top_matches": top3
+            "gender": user_gender,
+            "top_matches": top_matches
         }
 
     except Exception as e:
-        os.remove(temp_path)
+        print("❌ 예외 발생:", str(e))
         return {"error": str(e)}
+
+    finally:
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
