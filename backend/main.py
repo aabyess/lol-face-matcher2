@@ -39,14 +39,12 @@ async def match_champion(file: UploadFile = File(...)):
         f.write(contents)
 
     try:
-        # 얼굴 임베딩
         test_embedding = DeepFace.represent(
             img_path=temp_path,
             model_name="ArcFace",
             enforce_detection=False
         )[0]["embedding"]
 
-        # 성별 분석 (형식 유동적이므로 안전하게 처리)
         analysis = DeepFace.analyze(
             img_path=temp_path,
             actions=["gender"],
@@ -67,10 +65,10 @@ async def match_champion(file: UploadFile = File(...)):
                 user_gender = gender_data
             else:
                 print("⚠ gender 형식 이상 → fallback 적용")
-                user_gender = "man"  # fallback: 반드시 성별 할당
+                user_gender = "man"
         except Exception as e:
             print("⚠ 분석 중 오류 발생 → fallback 적용:", str(e))
-            user_gender = "man"  # fallback: 오류 발생 시에도 기본값 지정
+            user_gender = "man"
 
         print("✅ 최종 user_gender:", user_gender)
         user_gender = user_gender.lower()
@@ -89,12 +87,13 @@ async def match_champion(file: UploadFile = File(...)):
             champ_gender = champion_gender.get(champ_key, "unknown")
             if isinstance(champ_gender, str) and champ_gender.lower() == user_gender:
                 score *= 1.05
-            else:
-                score *= 0.95
+
+            # ✅ 매칭률 보정: 70~100%로 스케일링
+            display_score = 70 + (score * 30)
 
             similarities.append({
                 "name": champ_name,
-                "score": round(float(score), 4)
+                "score": round(display_score / 100, 4)  # 0.7~1.0 형태로 반환
             })
 
         top_matches = sorted(similarities, key=lambda x: x["score"], reverse=True)[:3]

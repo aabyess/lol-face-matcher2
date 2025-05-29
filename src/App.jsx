@@ -56,12 +56,18 @@ const App = () => {
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         display: 'flex',
+        flexDirection: 'column',  // 수직 정렬
         justifyContent: 'center',
         alignItems: 'center',
         padding: '20px',
         boxSizing: 'border-box',
       }}
     >
+      {/* ✅ 여기 넣으면 됩니다 */}
+    <div style={{ textAlign: 'center', color: 'white', marginBottom: '24px' }}>
+      <h1 style={{ margin: 0, fontSize: '36px', fontWeight: 'bold' }}>MatchMyChampion</h1>
+      <p style={{ margin: 0, fontSize: '20px' }}>Who Is Your Champ?</p>
+    </div>
       <div
         style={{
           width: '800px',
