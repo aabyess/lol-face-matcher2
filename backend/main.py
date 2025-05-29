@@ -96,7 +96,7 @@ async def match_champion(file: UploadFile = File(...)):
                 "score": round(display_score / 100, 4)  # 0.7~1.0 형태로 반환
             })
 
-        top_matches = sorted(similarities, key=lambda x: x["score"], reverse=True)[:6]
+        top_matches = sorted(similarities, key=lambda x: x["score"], reverse=True)[:5]
 
         return {
             "gender": user_gender,
