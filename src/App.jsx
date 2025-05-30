@@ -1,3 +1,4 @@
+// 👇 상단 import 부분에 추가
 import React, { useState } from 'react';
 import { Upload, message, Typography, Button, Card, Tag, Space, Row, Col } from 'antd';
 import { InboxOutlined, ReloadOutlined } from '@ant-design/icons';
@@ -13,10 +14,30 @@ const App = () => {
   const [result, setResult] = useState(null);
   const [mainIndex, setMainIndex] = useState(0);
 
+  const isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
+
+  const handleShare = () => {
+    if (navigator.share) {
+      const champ = result?.top_matches?.[mainIndex];
+      const champName = champ?.name?.replace('.png', '');
+      navigator.share({
+        title: '나랑 닮은 LOL 챔피언은?',
+        text: `나는 ${champName} 닮은꼴! `,
+        url: window.location.href,
+      }).then(() => {
+        console.log('공유 성공');
+      }).catch((err) => {
+        console.error('공유 실패:', err);
+      });
+    } else {
+      alert('현재 브라우저는 공유를 지원하지 않습니다.');
+    }
+  };
+
   const uploadProps = {
     name: 'file',
     multiple: false,
-    action: 'http://localhost:8000/upload',
+    action: '/upload',
     showUploadList: false,
     onChange(info) {
       const { status, response } = info.file;
@@ -161,6 +182,11 @@ const App = () => {
                   다시 테스트 하기
                 </Button>
               </div>
+              {isMobile && (
+                <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                  <Button onClick={handleShare}>📤 공유하기</Button>
+                </div>
+              )}
             </>
           )}
         </div>
