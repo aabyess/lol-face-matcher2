@@ -159,7 +159,7 @@ npm run dev
 
 ```bash
 cd test_deepface
-venv\Scriptsctivate
+venv\Scripts\activate
 
 cd ../backend
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
