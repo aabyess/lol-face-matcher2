@@ -29,7 +29,7 @@
 ### 이미지 업로드 전
 ![upload](./public/screenshots/upload.png)
 
-### 닮은 챔피언 Top 3 결과
+### 닮은 챔피언 결과
 ![result](./public/screenshots/result.png)
 
 ---
