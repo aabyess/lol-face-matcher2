@@ -79,14 +79,14 @@
 #### 1. 가상환경 생성 (Windows 기준)
 ```bash
 cd test_deepface
-C:\Users\USERNAME\AppData\Local\Programs\Python\Python310\python.exe -m venv venv
+C:/Users/USERNAME/AppData/Local/Programs/Python/Python310/python.exe -m venv venv
 ```
 
 > 본인의 Python 3.10 경로로 수정 가능 (`py -0` 명령어로 버전 목록 확인)
 
 #### 2. 가상환경 활성화
 ```bash
-venv\Scripts\activate
+venv\Scriptsctivate
 ```
 
 #### 3. 필수 패키지 설치
@@ -146,6 +146,61 @@ npm run dev
 - MBTI/성향 기반 챔피언 추천 연동
 - 결과 기반 배경 이미지 자동 전환
 - SNS 공유 기능, 모달 상세 보기 등 UI 확장
+
+---
+
+## 🧪 실행 순서 (로컬 + 모바일 공유 기능 테스트용)
+
+모든 기능이 정상 작동하려면 백엔드 서버, 프론트 서버, 그리고 ngrok 순서대로 실행해야 합니다.
+
+---
+
+### 1️⃣ 백엔드 서버 실행 (FastAPI)
+
+```bash
+cd test_deepface
+venv\Scriptsctivate
+
+cd ../backend
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+> `--host 0.0.0.0`을 설정해야 외부(ngrok 등)에서 접속 가능
+
+---
+
+### 2️⃣ 프론트엔드 서버 실행 (Vite)
+
+```bash
+npm run dev -- --host
+```
+
+> 실행 후 `http://localhost:5173` 또는 `http://172.xx.xx.xx:5173`로 접속 가능
+
+---
+
+### 3️⃣ ngrok 실행 (모바일 공유 테스트용)
+
+```bash
+ngrok http 5173
+```
+
+> HTTPS 주소가 생성됩니다. 예시:
+
+```
+Forwarding https://abcd-1234.ngrok-free.app -> http://localhost:5173
+```
+
+모바일에서 이 HTTPS 주소로 접속해야 Web Share API(공유 버튼)가 작동합니다.
+
+---
+
+### ✅ 정리된 순서 요약
+
+1. 백엔드 실행 (`uvicorn ...`)
+2. 프론트엔드 실행 (`npm run dev`)
+3. ngrok 실행 → HTTPS 주소 접속
+4. 모바일 Safari로 접속 → 공유 기능 확인
 
 ---
 
