@@ -51,7 +51,7 @@ async def match_champion(file: UploadFile = File(...)):
             enforce_detection=False
         )
 
-        print("🔥 DeepFace 분석 결과:", analysis)
+        print(" DeepFace 분석 결과:", analysis)
 
         try:
             if isinstance(analysis, list):
@@ -64,13 +64,13 @@ async def match_champion(file: UploadFile = File(...)):
             elif isinstance(gender_data, str):
                 user_gender = gender_data
             else:
-                print("⚠ gender 형식 이상 → fallback 적용")
+                print(" gender 형식 이상 → fallback 적용")
                 user_gender = "man"
         except Exception as e:
-            print("⚠ 분석 중 오류 발생 → fallback 적용:", str(e))
+            print(" 분석 중 오류 발생 → fallback 적용:", str(e))
             user_gender = "man"
 
-        print("✅ 최종 user_gender:", user_gender)
+        print(" 최종 user_gender:", user_gender)
         user_gender = user_gender.lower()
 
         def cosine_similarity(vec1, vec2):
@@ -88,7 +88,7 @@ async def match_champion(file: UploadFile = File(...)):
             if isinstance(champ_gender, str) and champ_gender.lower() == user_gender:
                 score *= 1.05
 
-            # ✅ 매칭률 보정: 70~100%로 스케일링
+            #  매칭률 보정: 70~100%로 스케일링
             display_score = 70 + (score * 30)
 
             similarities.append({
@@ -104,7 +104,7 @@ async def match_champion(file: UploadFile = File(...)):
         }
 
     except Exception as e:
-        print("❌ 예외 발생:", str(e))
+        print(" 예외 발생:", str(e))
         return {"error": str(e)}
 
     finally:

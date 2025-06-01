@@ -159,7 +159,7 @@ const App = () => {
 
         <div style={{ width: '100%', maxWidth: '900px', padding: '24px', backgroundColor: 'rgba(30, 42, 56, 0.85)', borderRadius: '16px', boxShadow: '0 6px 16px rgba(0,0,0,0.5)', border: '1px solid #2e4a68' }}>
           <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-            <Title level={2} style={{ color: 'white', fontSize: '24px' }}>리그 챔피언 닮은꼴 찾기</Title>
+            <Title level={2} style={{ color: 'white', fontSize: '24px' }}>LOL 챔피언 닮은꼴 찾기</Title>
             {result && <Text style={{ fontSize: '14px', color: '#d0d8e0' }}>감지된 성별: {genderLabel}</Text>}
           </div>
 
