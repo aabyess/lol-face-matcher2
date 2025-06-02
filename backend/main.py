@@ -34,25 +34,20 @@ with open(GENDER_FILE, "r", encoding="utf-8") as f:
 async def match_champion(file: UploadFile = File(...)):
     contents = await file.read()
     temp_path = "temp_image.jpg"
-
     with open(temp_path, "wb") as f:
         f.write(contents)
-
     try:
         test_embedding = DeepFace.represent(
             img_path=temp_path,
             model_name="ArcFace",
             enforce_detection=False
         )[0]["embedding"]
-
         analysis = DeepFace.analyze(
             img_path=temp_path,
             actions=["gender"],
             enforce_detection=False
         )
-
         print(" DeepFace 분석 결과:", analysis)
-
         try:
             if isinstance(analysis, list):
                 gender_data = analysis[0].get("gender")
